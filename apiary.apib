@@ -1,0 +1,218 @@
+FORMAT: 1A
+HOST: http://berpujcku.behind.cz/
+
+
+# LeadAPI
+
+# Group Autorizace
+K připojení k API potřebujete mít založený účet u společnosti Berpůjčku s.r.o. a vygenerovaný přístupový klíč.
+
+Klíč musí být vždy odesílán s každým požadavkem na API v hlavičce požadavku pod názvem **X-User-Access-Token**.
+
+#### **Odpověď serveru**
+
+##### HTTP HEADER CODE = **401**
+
++ **1001** - Přístupový klíč nebyl odeslán v hlavičce požadavku a nemohlo proběhnout ověření.
++ **1002** - Účet se zaslaným přístupovým klíčem nebyl nalezen.
++ **1003** - Účet je zablokován. Pro více informací kontaktujte společnost Berpůjčku s.r.o.
++ **1004** - Vaše IP adresa není v seznamu povolených, kontaktujte prosím společnost Berpůjčku s.r.o.
+
+
+# Group Nákup
+Sekce nákup slouží k nákupu "leadů" směrem od affiliate partnera ke společnosti Berpujčku s.r.o.
+
+## Žádosti / Půjčky [/affiliate/application]
+
+### Nová žádost / půjčka [POST]
+
+#### **Požadavek**
+
++ **amount** *(required, integer)* - Požadovaná částka žadatele. V rozsahu od 2 000 - 10 000,-Kč. Dochází k zaokrouhlování na nejbližší podobnou částku v případě, že konkrétní požadovaná není v nabídce. Bude-li překročena částka, bude automaticky nastavena částka 10 000,-Kč. Příklad: *Žadatel žádá o půjčku ve výši 3500,-Kč, ale tato částka není v nabídce společnosti, dojde k automatickému výběru částky 4 000,-Kč.*
++ **period** *(required, integer)* - Doba výpujčky. Hodnoty mohou nabývat hodnot 20 a 30 dní. Nebude-li se shodovat doba požadované výpujčky s nabídkou společnosti, dojde k automatickému výběru nejvyšší hodnoty, tzn. 30 dní.
++ **first_name / fname** *(required, string)* - Křestní jméno žadatele
++ **last_name / lname** *(required, string)* - Příjmení žadatele
++ **birth_number** *(required, numericint)* - Validní rodné číslo žadatele. Rodné číslo kontrolujeme nejen z pohledu datového typu, ale také, zda splňuje veškeré pravidla pro rodné číslo, tzn. také dělitelnost aj. 
++ **email** *(required, string|email)* - Validní emailová adresa uživatele.
++ **monthly_income / income** *(required, integer)* - Měsíční finanční příjem žadatele.
++ **income_type** *(required, string)* - Typ příjmu. Může nabývat jedné z hodnot **['EMPLOYED', 'PART_TIME_EMPLOYMENT', 'SELF_EMPLOYED', 'PENSION', 'MATERNITY_LEAVE', 'BENEFITS', 'SAVINGS', 'STUDENT', 'UNEMPLOYED', 'OTHER']**.
++ **dependent_children / children** *(required, string)* - Počet vyživovacích povinností.
++ **distraint** *(required, boolean, tinyint)* - Na žadatele je vystavena aktivní exekuce.
++ **marital_status** *(required, string)* - Rodinný stav. Může nabývat jedné z hodnot **['SINGLE', 'MARRIED', 'PARTNERSHIP', 'DIVORCED', 'WIDOWED', 'SEPARATED']**.
++ **home_status** *(required, string)* - Typ bydlení. Může nabývat jedné z hodnot **['HOME_OWNER', 'TENANT', 'DORMITORY', 'HOSTEL', 'MINISTRY', 'EMPLOYEE_BENEFIT', 'CO_OWNED']**.
++ **identity_card_number** *(required, numericint)* - Číslo občanského průkazu.
++ **city** *(required, string)* - Název města trvalého bydliště žadatele.
++ **zip** *(required, numericint)* - PSČ trvalého bydliště žadatele.
++ **street** *(required, string)* - Název ulice trvalého bydliště žadatele.
++ **house_number** *(required, string)* - Číslo popisné ulice trvalého bydliště žadatele.
++ **cell_phone** *(required, string)* - Telefonní číslo mobilu žadatele. Akceptuje formáty s mezinárodní předvolbou **+/00** i bez.
++ **bank_account_number** *(required, numericint)* - Číslo bankovního účtu žadatele.
++ **bank_code** *(required, numericint)* - Kód banky bankovního účtu žadatele.
++ **employer_name** *(required|optional, string)* - Název zaměstnavatele. Povinné pro hodnoty **income_type = employed|part_time_employment|student** 
++ **employer_address** *(required|optional, string)* - Adresa zaměstnavatele. Povinné pro hodnoty **income_type = employed|part_time_employment|student** 
++ **employer_phone** *(required|optional, string)* - Telefon do zaměstnání. Povinné pro hodnoty **income_type = employed|part_time_employment|student**
+
++ **education** *(optional, string)* - Dosažené vzdělání žadatele. Může nabývat jedné z hodnot **['PRIMARY', 'SECONDARY_PROFESSIONAL', 'SECONDARY_HIGH_SCHOOL', 'UNIVERSITY_BACHELOR', 'UNIVERSITY_MASTER', 'UNIVERSITY_PHD', 'OTHER']**.
++ **gender** *(optional, string)* - Pohlaví žadatele. Může nabývat jedné z hodnot **['MAN', 'FEMALE']**.
++ **address_time** *(optional, integer)* - Doba pobytu na aktuální adrese.
++ **district** *(optional, string)* - Název městské části trvalého bydliště žadatele.
++ **phone** *(optional, string)* - Druhé telefonní číslo žadatele. Akceptuje formáty s mezinárodní předvolbou **+/00** i bez.
++ **contact_city** *(optional, string)* - Název města kontaktní adresy žadatele.
++ **contact_district** *(optional, string)* - Název městské části kontaktní adresy žadatele.
++ **contact_zip** *(optional, numericint)* - PSČ kontaktní adresy žadatele.
++ **contact_street** *(optional, string)* - Název ulice kontaktní adresy žadatele.
++ **contact_house_number** *(optional, string)* - Číslo popisné ulice kontaktní adresy žadatele.
++ **bank_account_prefix** *(optional, numericint)* - Předčíslí bankovního účtu žadatele.
++ **job** *(optional, string)* - Pracovní pozice žadatele nebo obor podnikání.
+
++ **return_url** *(optional, url)* - URL, která bude zavolána po schválení/zamítnutí půjčky a je tedy alternativou k metodě pro manuální ověření stavu.
++ **affil_data** *(optional, string)* - Pole pro vaše data. Pokud se v dokumentaci nenachází pole, které vyžadujete při zpětném odkupu leadu, toto je prostor určený právě těmto datům. Doporučením je posílat jako application/json řetězec, při dodržení bude následně při odkupu leadu tento řetězec v odpovědi serveru přeložen do podoby "klíč -> hodnota", nebude-li kolidovat klíč s některým klíčem, který se nachází v dokumentaci.
+
+
+#### **Odpověď serveru**
+
+##### HTTP HEADER CODE = **400**
+
++ **1101** *(field = amount/requested_amount)* - Požadovaná částka musí být celé a nenulové číslo.
++ **1102** *(field = period)* - Doba půjčky musí být celé a nenulové číslo.
+
++ **1301** *(field = first_name/fname)* - Křesní jméno žadatele musí být vyplněno.
++ **1302** *(field = last_name/lname)* - Příjmení žadatele musí být vyplněno.
++ **1303** *(field = birth_number)* - Rodné číslo žadatele musí být vyplněno a musí být validní, tzn. smí obsahovat pouze numerické znaky a splňovat i dělitelnost dle pravidel pro rodná čísla.
++ **1304** *(field = email)* - Email žadatele musí být vyplněn a musí být validní emailová adresa.
++ **1305** *(field = monthly_income/income)* - Příjem musí být celé číslo.
++ **1306** *(field = dependent_children)* - Musí být celé číslo.
++ **1307** *(field = distraint)* - Exekuční nález musí být logická hodnota true/false nebo 1/0.
++ **1308** *(field = income_type)* - Typ příjmu musí být vyplněn.
++ **1309** *(field = marital_status)* - Rodinný stav musí být vyplněn.
++ **1310** *(field = home_status)* - Typ bydlení musí být vyplněn.
++ **1311** *(field = address_time)* - Je-li uvedena doba pobytu na uvedené adrese, musí být celé číslo.    
++ **1312** *(field = identity_card_number)* - Číslo OP musí být vyplněno a smí obsahovat pouze numerické znaky.
++ **1350** *(field = education)* - Dosažené vzdělání musí být jedna z hodnot, viz. sekce **POST FIELDS**.
++ **1351** *(field = income_type)* - Typ příjmu musí být jedna z hodnot, viz. sekce **POST FIELDS**.
++ **1352** *(field = marital_status)* - Rodinný stav musí být jedna z hodnot, viz. sekce **POST FIELDS**.
++ **1353** *(field = home_status)* - Typ bydlení musí být jedna z hodnot, viz. sekce **POST FIELDS**.
++ **1354** *(field = gender)* - Pohlaví musí být jedna z hodnot, viz. sekce **POST FIELDS**.
++ **1355** *(field = birth_number)* - Rodné číslo žadatele musí být validní. Ze zaslaného rodného čísla není možné získat validní datum narození a nesplňuje tak všechny podmínky.
++ **1356** *(field = birth_number)* - Věk žadatele je mimo povolený rozsah (20 - 66 let).
+
++ **1401** *(field = email)* - Email žadatele musí být vyplněn a musí být validní emailová adresa.
++ **1402** *(field = cell_phone)* - Telefonní číslo na mobil musí být vyplněn a musí být validní telefonní číslo ve formátu +420 123 456 789 nebo 00420 123 456 789 nebo 123 456 789. Na mezerách nezáleží!
++ **1403** *(field = phone)* - Je-li uvedeno druhé telefonní číslo, musí být vyplněn a musí být validní telefonní číslo ve formátu +420 123 456 789 nebo 00420 123 456 789 nebo 123 456 789. Na mezerách nezáleží!
++ **1404** *(field = contact_city)* - Je-li uvedeno město u konktatní adresy, musí být řetězec.
++ **1405** *(field = contact_district)* - Je-li uvedena městská část u kontaktní adresy, musí být řetězec.
++ **1406** *(field = contact_zip)* - Je-li uvedeno PSČ u kontaktní adresy, musí být validní.
++ **1407** *(field = contact_street)* - Je-li uvedena ulice u kontaktní adresy, musí být řetězec.
++ **1408** *(field = contact_house_number)* - Je-li uvedeno číslo popisné u kontaktní adresy, musí být řetězec.
++ **1409** *(field = bank_account_number)* - Číslo bankovního účtu musí být vyplněno a musí být validní, tzn. smí obsahovat pouze numerické znaky.
++ **1410** *(field = bank_code)* - Kód banky musí být vyplněn a musí skutečně existovat.
++ **1411** *(field = bank_account_prefix)* - Je-li uvedeno předčíslí bankovního účtu, musí být validní, tzn. smí obsahovat pouze numerické znaky.
+
++ **1501** *(field = city)* - Město trvalého bydliště žadatele musí být vyplněno.
++ **1502** *(field = district)* - Je-li uvedena městská část u trvalého bydliště žadatele, musí být řetězec.
++ **1503** *(field = zip)* - PSČ trvalého bydliště žadatele musí být vyplněno a musí být validní, tzn. smí obsahovat pouze numerické znaky.
++ **1504** *(field = street)* - Ulice trvalého bydliště žadatele musí být vyplněna.
++ **1505** *(field = house_number)* - Číslo popisné trvalého bydliště žadatele musí být vyplněno.
+
++ **1601** *(field = employer_name)* - Název zaměstnavatele musí být vyplněn.
++ **1602** *(field = employer_phone)* - Telefonní číslo do zaměstnání musí být vyplněno a musí být validní telefonní číslo ve formátu +420 123 456 789 nebo 00420 123 456 789 nebo 123 456 789. Na mezerách nezáleží!
++ **1603** *(field = employer_address)* - Adresa zaměstnavatele musí být vyplněna.
++ **1604** *(field = job)* - Je-li uvedena vykonávaná pozice nebo obor podnikání, musí být řetězec.
+
+##### HTTP HEADER CODE = **409** = lead odmítnut
+
++ **2001** - Rodné číslo se nachází na černé listině.
++ **2002** - Zákazník má aktivní záznamy v Centrální evidenci exekucí ČR.
++ **2003** - Zákazník má již aktivní půjčku
++ **2004** - Zákazník nesplňuje věkový limit v rozsahu 21 - 65 let.
+
+##### HTTP HEADER CODE = **200** = lead příjmut
+
++ **id** - ID uloženého leadu
+
++ Request (application/json)
+
+        {
+            "amount": 2000,
+            "period": 30,
+            "first_name": "",
+            "last_name": "",
+            "birth_number": "",
+            "email": "lead@example.cz",
+            "education": "university_bachelor",
+            "monthly_income": 15000,
+            "income_type": "self_employed",
+            "dependent_children": 0,
+            "distraint": false,
+            "marital_status": "single",
+            "identity_card_number": "",
+            "gender": "man",
+            "city": "",
+            "district": "",
+            "zip": "",
+            "street": "",
+            "house_number": "",
+            "cell_phone": "",
+            "bank_account_number": "",
+            "bank_code": 0300,
+            "employer_name": "",
+            "employer_address": "",
+            "employer_phone": "",
+            "address_time": null,
+            "district": null,
+            "phone": null,
+            "contact_city": null,
+            "contact_district": null,
+            "contact_zip": null,
+            "contact_street": null,
+            "contact_house_number": null,
+            "bank_account_prefix": null,
+            "job": null
+        }
+
++ Response 400 (application/json)
+    
+        {
+            errors: {
+                "1101": "The item 'amount' in array expects to be integer, NULL given.",
+                "1102": "The item 'period' in array expects to be integer, NULL given.",
+                "xxxx": "..."
+            }
+        }
+
++ Response 409 (application/json)
+    
+        {
+            errors: {
+                "2001": "Birth number is blacklisted."
+            }
+        }
+
++ Response 200 (application/json)
+
+## Správa žádostí [/affiliate/application/{id}]
+
++ Parameters
+    + id (required, integer) - ID leadu
+
+### Aktuální stav žádosti [GET]
+
+#### **Odpověď serveru**
+
+##### HTTP HEADER CODE = **404**
+
+Lead dle id nebyl nalezen.
+
+##### HTTP HEADER CODE = **200**
+
++ **0001** - Půjčka se zpracovává
++ **0002** - Půjčka byla schválena
++ **0003** - Půjčka byla aktivována
++ **0004** - Půjčka byla uhrazena
++ **0005** - Půjčka byla zamítnuta
+
++ Response 200 (application/json)
+
+        {
+            status: "0001"
+        }
