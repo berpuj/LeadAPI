@@ -1,2 +1,2 @@
 # LeadAPI  
-Visit Wiki for more informations.
+Visit [WIKI](https://github.com/berpuj/LeadAPI/wiki/Homepage) for more informations.
